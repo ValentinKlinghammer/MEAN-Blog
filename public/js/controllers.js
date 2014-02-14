@@ -1,27 +1,62 @@
 'use strict';
 
 /* Controllers */
+function IndexCtrl($scope, $http) {
+  $http.get('/api/posts').
+    success(function(data, status, headers, config){
+      $scope.posts = data.posts;
+    });
+}
 
-angular.module('myApp.controllers', []).
-  controller('AppCtrl', function ($scope, $http) {
+function ReadPostCtrl($scope, $http, $routeParams) {
+  $http.get('/api/post/' + $routeParams.id).
+    success(function(data, status, headers, config){
+      $scope.post = data.post;
+    });
+}
 
-    $http({
-      method: 'GET',
-      url: '/api/name'
-    }).
-    success(function (data, status, headers, config) {
-      $scope.name = data.name;
-    }).
-    error(function (data, status, headers, config) {
-      $scope.name = 'Error!'
+function AddPostCtrl($scope, $http, $location) {
+  $scope.form = {};
+  $scope.submitPost = function(){
+    $http.post('/api/post', $scope.form).
+      success(function(data){
+        $location.path('/');
+      });
+  };
+}
+
+
+function EditPostCtrl($scope, $http, $location, $routeParams) {
+  $http.get('/api/post/' + $routeParams.id).
+    success(function(data){
+      $scope.form = data.post;
     });
 
-  }).
-  controller('MyCtrl1', function ($scope) {
-    // write Ctrl here
+  $scope.editPost = function(){
+    $http.put('/api/post/' + $routeParams.id, $scope.form).
+      success(function(data){
+        $location.path('/posts/' + $routeParams.id);
+      });
+  };
+}
 
-  }).
-  controller('MyCtrl2', function ($scope) {
-    // write Ctrl here
 
-  });
+function DeletePostCtrl($scope, $http, $location, $routeParams) {
+  $http.get('/api/post/' + $routeParams.id).
+    success(function(data){
+      $scope.post = data.post;
+    });
+
+  $scope.deletePost = function(){
+    $http.delete('/api/post/' + $routeParams.id).
+      success(function(data){
+        $location.path('/');
+      });
+  };
+
+  $scope.home = function(){
+    $location.url('/');
+  };
+}
+
+
